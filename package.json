@@ -1,0 +1,16 @@
+{
+  "name": "rabbithole",
+  "version": "0.1.0",
+  "type": "module",
+  "bin": {
+    "rabbithole": "./bin/rabbithole.js"
+  },
+  "dependencies": {
+    "paparam": "^1.10.0"
+  },
+  "devDependencies": {
+    "lunte": "^1.7.0",
+    "prettier": "^3.8.3",
+    "prettier-config-holepunch": "^2.0.0"
+  }
+}
