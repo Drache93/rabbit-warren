@@ -4,7 +4,7 @@ import path from 'node:path'
 const SKIP_DIRS = new Set(['.git', '.cache', 'node_modules'])
 const SKIP_EXTS = new Set(['.node'])
 
-export function walkFiles (dir, base) {
+export function walkFiles(dir, base) {
   const results = []
   let entries
   try {
@@ -26,7 +26,7 @@ export function walkFiles (dir, base) {
   return results
 }
 
-export function captureLinks (nodeModulesPath) {
+export function captureLinks(nodeModulesPath) {
   if (!fs.existsSync(nodeModulesPath)) return []
   const links = []
 
@@ -54,7 +54,7 @@ export function captureLinks (nodeModulesPath) {
   return links
 }
 
-export function restoreLinks (links, nodeModulesPath) {
+export function restoreLinks(links, nodeModulesPath) {
   for (const { package: pkg, target } of links) {
     const linkPath = path.join(nodeModulesPath, pkg)
     try {
@@ -65,7 +65,7 @@ export function restoreLinks (links, nodeModulesPath) {
   }
 }
 
-export function captureModified (nodeModulesPath, lockfilePath) {
+export function captureModified(nodeModulesPath, lockfilePath) {
   if (!fs.existsSync(nodeModulesPath)) return []
   if (!lockfilePath || !fs.existsSync(lockfilePath)) return []
 
@@ -83,7 +83,10 @@ export function captureModified (nodeModulesPath, lockfilePath) {
       const fullPath = path.join(nodeModulesPath, relPath)
       try {
         const stat = fs.statSync(fullPath)
-        if (stat.mtimeMs > lockfileMtime) modified.push(relPath)
+        if (stat.mtimeMs > lockfileMtime) {
+          console.log(pkgDir)
+          modified.push({ package: pkgDir, file: relPath })
+        }
       } catch {}
     }
   }
@@ -91,8 +94,8 @@ export function captureModified (nodeModulesPath, lockfilePath) {
   return modified
 }
 
-export function copyModifiedFiles (relPaths, nodeModulesPath, destDir) {
-  for (const relPath of relPaths) {
+export function copyModifiedFiles(relPaths, nodeModulesPath, destDir) {
+  for (const { file: relPath } of relPaths) {
     const src = path.join(nodeModulesPath, relPath)
     const dest = path.join(destDir, relPath)
     fs.mkdirSync(path.dirname(dest), { recursive: true })
@@ -100,7 +103,7 @@ export function copyModifiedFiles (relPaths, nodeModulesPath, destDir) {
   }
 }
 
-export function restoreModifiedFiles (srcDir, nodeModulesPath) {
+export function restoreModifiedFiles(srcDir, nodeModulesPath) {
   if (!fs.existsSync(srcDir)) return
   const files = walkFiles(srcDir, srcDir)
   for (const relPath of files) {

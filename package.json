@@ -5,6 +5,10 @@
   "bin": {
     "wrn": "./bin/rabbit-warren.js"
   },
+  "scripts": {
+    "format": "prettier . --write",
+    "lint": "lunte && prettier . --check"
+  },
   "dependencies": {
     "paparam": "^1.10.0"
   },

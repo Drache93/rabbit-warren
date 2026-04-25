@@ -1,6 +1,6 @@
 const t = process.stdout.isTTY
 
-const c = (code) => t ? (s) => `\x1b[${code}m${s}\x1b[0m` : (s) => s
+const c = (code) => (t ? (s) => `\x1b[${code}m${s}\x1b[0m` : (s) => s)
 
 export const bold = c('1')
 export const dim = c('2')

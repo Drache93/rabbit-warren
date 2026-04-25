@@ -11,8 +11,12 @@ export const popCmd = command(
       const { name, meta } = await restore(cmd.args.name)
       console.log(`\n  ${green('↑')} ${bold('Restored')} ${cyan(name)}`)
       console.log(`    ${gray('branch')}    ${yellow(meta.branch)}`)
-      console.log(`    ${gray('git')}       ${meta.stats.files} tracked, ${meta.stats.untracked ?? 0} untracked`)
-      console.log(`    ${gray('modules')}   ${meta.stats.links} symlinks, ${meta.stats.modified} modified files\n`)
+      console.log(
+        `    ${gray('git')}       ${meta.stats.files} tracked, ${meta.stats.untracked ?? 0} untracked`
+      )
+      console.log(
+        `    ${gray('modules')}   ${meta.stats.links} symlinks, ${meta.stats.modified} modified files\n`
+      )
     } catch (err) {
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)
       process.exit(1)

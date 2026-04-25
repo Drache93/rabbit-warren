@@ -1,10 +1,25 @@
 import fs from 'node:fs'
 import path from 'node:path'
-import { getRepoRoot, currentBranch, capturePatch, applyPatch, countChangedFiles, captureUntracked, cleanWorkingDirectory } from './git.js'
-import { captureLinks, restoreLinks, captureModified, copyModifiedFiles, restoreModifiedFiles, walkFiles } from './modules.js'
+import {
+  getRepoRoot,
+  currentBranch,
+  capturePatch,
+  applyPatch,
+  countChangedFiles,
+  captureUntracked,
+  cleanWorkingDirectory
+} from './git.js'
+import {
+  captureLinks,
+  restoreLinks,
+  captureModified,
+  copyModifiedFiles,
+  restoreModifiedFiles,
+  walkFiles
+} from './modules.js'
 import { makeRepoSlug, getStashDir, readMeta, mostRecentStash, deleteStash } from './storage.js'
 
-function findLockfile (repoRoot) {
+function findLockfile(repoRoot) {
   for (const name of ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml']) {
     const p = path.join(repoRoot, name)
     if (fs.existsSync(p)) return p
@@ -12,16 +27,18 @@ function findLockfile (repoRoot) {
   return null
 }
 
-function copyUntrackedFiles (files, repoRoot, destDir) {
+function copyUntrackedFiles(files, repoRoot, destDir) {
   for (const relPath of files) {
     const src = path.join(repoRoot, relPath)
     const dest = path.join(destDir, relPath)
     fs.mkdirSync(path.dirname(dest), { recursive: true })
-    try { fs.copyFileSync(src, dest) } catch {}
+    try {
+      fs.copyFileSync(src, dest)
+    } catch {}
   }
 }
 
-function restoreUntrackedFiles (srcDir, repoRoot) {
+function restoreUntrackedFiles(srcDir, repoRoot) {
   if (!fs.existsSync(srcDir)) return
   const files = walkFiles(srcDir, srcDir)
   for (const relPath of files) {
@@ -32,7 +49,7 @@ function restoreUntrackedFiles (srcDir, repoRoot) {
   }
 }
 
-export async function capture (stashName) {
+export async function capture(stashName) {
   const repoRoot = getRepoRoot()
   const branch = currentBranch()
   const slug = makeRepoSlug(repoRoot)
@@ -84,12 +101,12 @@ export async function capture (stashName) {
     copyModifiedFiles(modified, nodeModulesPath, path.join(dir, 'node_modules', 'modified'))
   }
 
-  cleanWorkingDirectory(repoRoot)
+  cleanWorkingDirectory(repoRoot, links, modified)
 
   return { name, meta, dir, slug }
 }
 
-export async function restore (stashName) {
+export async function restore(stashName) {
   const repoRoot = getRepoRoot()
   const slug = makeRepoSlug(repoRoot)
   const nodeModulesPath = path.join(repoRoot, 'node_modules')
@@ -124,7 +141,7 @@ export async function restore (stashName) {
   return { name: meta.name, meta }
 }
 
-export async function swap (targetName) {
+export async function swap(targetName) {
   const repoRoot = getRepoRoot()
   const slug = makeRepoSlug(repoRoot)
 

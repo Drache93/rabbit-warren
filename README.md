@@ -35,7 +35,7 @@ wrn list            # see all stashes for this repo
 
 ```sh
 # deep in a debug session — changes everywhere
-wrn stash debug-auth
+wrn stash debug-auth && npm i
 
 # working directory is now clean — switch branches safely
 git checkout main
@@ -51,11 +51,11 @@ wrn pop debug-auth
 
 ## What gets stashed
 
-| Thing | How |
-|---|---|
-| Tracked file changes | `git diff HEAD` patch |
-| Untracked files | copied and removed from working dir |
-| Symlinked packages | symlink targets saved as JSON |
+| Thing                            | How                                      |
+| -------------------------------- | ---------------------------------------- |
+| Tracked file changes             | `git diff HEAD` patch                    |
+| Untracked files                  | copied and removed from working dir      |
+| Symlinked packages               | symlink targets saved as JSON            |
 | Hand-edited `node_modules` files | individual files copied (no full copies) |
 
 Stashes live at `~/.rabbit-warren/<repo>/` — outside the repo, safe from git.
