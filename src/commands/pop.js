@@ -8,9 +8,9 @@ export const popCmd = command(
   arg('[name]', 'Name of the stash to restore'),
   async (cmd) => {
     try {
-      const { name, meta } = await restore(cmd.args.name)
+      const { name, meta, switched } = await restore(cmd.args.name)
       console.log(`\n  ${green('↑')} ${bold('Restored')} ${cyan(name)}`)
-      console.log(`    ${gray('branch')}    ${yellow(meta.branch)}`)
+      console.log(`    ${gray('branch')}    ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`)
       console.log(
         `    ${gray('git')}       ${meta.stats.files} tracked, ${meta.stats.untracked ?? 0} untracked`
       )

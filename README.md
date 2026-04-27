@@ -4,7 +4,7 @@ You've been debugging for two hours. You're three `console.log`s deep into `node
 
 Now something urgent just landed on a different branch.
 
-**rabbit-warren** saves your whole mess — git changes, untracked files, hand-patched `node_modules`, symlinked local packages — and gets you out cleanly. Pop back in when you're done.
+**rabbit-warren** saves your whole mess — git changes, untracked files, branch, hand-patched `node_modules`, symlinked local packages — and gets you out cleanly. Pop back in when you're done.
 
 ---
 
@@ -34,17 +34,14 @@ wrn list            # see all stashes for this repo
 ### Typical flow
 
 ```sh
-# deep in a debug session — changes everywhere
-wrn stash debug-auth && npm i
+# deep in a debug session on feature/auth — changes everywhere
+wrn stash && npm i
 
 # working directory is now clean — switch branches safely
 git checkout main
 
-# fix the urgent thing, come back...
-git checkout feature/auth
-
-# pick up exactly where you left off
-wrn pop debug-auth
+# pick up exactly where you left off - returns to feature/auth
+wrn pop
 ```
 
 ---

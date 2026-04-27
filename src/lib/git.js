@@ -9,8 +9,8 @@ export function getRepoRoot() {
   }
 }
 
-export function currentBranch() {
-  return execSync('git rev-parse --abbrev-ref HEAD', { encoding: 'utf8' }).trim()
+export function currentBranch(cwd) {
+  return execSync('git rev-parse --abbrev-ref HEAD', { cwd, encoding: 'utf8' }).trim()
 }
 
 export function capturePatch(repoRoot) {
@@ -50,4 +50,13 @@ export function applyPatch(patch, repoRoot) {
 
 export function countChangedFiles(patch) {
   return (patch.match(/^diff --git /gm) || []).length
+}
+
+export function isWorkingDirClean(repoRoot) {
+  const out = execSync('git status --porcelain', { cwd: repoRoot, encoding: 'utf8' })
+  return out.trim() === ''
+}
+
+export function checkoutBranch(branch, repoRoot) {
+  execSync(`git checkout ${branch}`, { cwd: repoRoot, encoding: 'utf8', stdio: 'pipe' })
 }

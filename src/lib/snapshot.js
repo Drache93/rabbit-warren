@@ -7,7 +7,9 @@ import {
   applyPatch,
   countChangedFiles,
   captureUntracked,
-  cleanWorkingDirectory
+  cleanWorkingDirectory,
+  isWorkingDirClean,
+  checkoutBranch
 } from './git.js'
 import {
   captureLinks,
@@ -51,7 +53,7 @@ function restoreUntrackedFiles(srcDir, repoRoot) {
 
 export async function capture(stashName) {
   const repoRoot = getRepoRoot()
-  const branch = currentBranch()
+  const branch = currentBranch(repoRoot)
   const slug = makeRepoSlug(repoRoot)
   const nodeModulesPath = path.join(repoRoot, 'node_modules')
   const lockfilePath = findLockfile(repoRoot)
@@ -125,6 +127,14 @@ export async function restore(stashName) {
     dir = getStashDir(slug, meta.name)
   }
 
+  if (!isWorkingDirClean(repoRoot)) {
+    throw new Error('Working directory is not clean. Run `wrn stash` or `git stash` first.')
+  }
+
+  const currentBranchName = currentBranch(repoRoot)
+  const switched = meta.branch !== currentBranchName
+  if (switched) checkoutBranch(meta.branch, repoRoot)
+
   const patch = fs.readFileSync(path.join(dir, 'git.patch'), 'utf8')
   if (patch.trim()) applyPatch(patch, repoRoot)
 
@@ -138,7 +148,7 @@ export async function restore(stashName) {
 
   deleteStash(dir)
 
-  return { name: meta.name, meta }
+  return { name: meta.name, meta, switched }
 }
 
 export async function swap(targetName) {
