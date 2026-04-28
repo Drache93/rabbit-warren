@@ -51,15 +51,15 @@ function restoreUntrackedFiles(srcDir, repoRoot) {
   }
 }
 
-export async function capture(stashName) {
-  const repoRoot = getRepoRoot()
+export async function capture(stashName, cwd = process.cwd(), stashDir = null, session = null) {
+  const repoRoot = getRepoRoot(cwd)
   const branch = currentBranch(repoRoot)
   const slug = makeRepoSlug(repoRoot)
   const nodeModulesPath = path.join(repoRoot, 'node_modules')
   const lockfilePath = findLockfile(repoRoot)
 
   const name = stashName || `${branch.replace(/\//g, '-')}-${Date.now()}`
-  const dir = getStashDir(slug, name)
+  const dir = stashDir || getStashDir(slug, name)
 
   if (fs.existsSync(dir)) {
     throw new Error(`Stash "${name}" already exists`)
@@ -76,6 +76,7 @@ export async function capture(stashName) {
     timestamp: Date.now(),
     repoPath: repoRoot,
     repoSlug: slug,
+    session,
     stats: {
       files: countChangedFiles(patch),
       untracked: untracked.length,
@@ -108,14 +109,18 @@ export async function capture(stashName) {
   return { name, meta, dir, slug }
 }
 
-export async function restore(stashName) {
-  const repoRoot = getRepoRoot()
+export async function restore(stashName, cwd = process.cwd(), stashDir = null) {
+  const repoRoot = getRepoRoot(cwd)
   const slug = makeRepoSlug(repoRoot)
   const nodeModulesPath = path.join(repoRoot, 'node_modules')
 
   let dir, meta
 
-  if (stashName) {
+  if (stashDir) {
+    if (!fs.existsSync(stashDir)) throw new Error('Session snapshot not found')
+    dir = stashDir
+    meta = readMeta(dir)
+  } else if (stashName) {
     dir = getStashDir(slug, stashName)
     if (!fs.existsSync(dir)) {
       throw new Error(`Stash "${stashName}" not found`)

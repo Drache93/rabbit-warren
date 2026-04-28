@@ -1,9 +1,9 @@
 import { execSync, spawnSync } from 'node:child_process'
 import fs from 'node:fs'
 
-export function getRepoRoot() {
+export function getRepoRoot(cwd = process.cwd()) {
   try {
-    return execSync('git rev-parse --show-toplevel', { encoding: 'utf8' }).trim()
+    return execSync('git rev-parse --show-toplevel', { cwd, encoding: 'utf8' }).trim()
   } catch {
     throw new Error('Not inside a git repository')
   }
