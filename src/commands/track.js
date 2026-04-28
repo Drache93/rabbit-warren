@@ -26,7 +26,9 @@ export const trackCmd = command(
       const { meta } = await capture(slug, process.cwd(), stashDir, session)
       registerRepo(session, slug, repoRoot)
 
-      console.log(`\n  ${green('↓')} ${bold('Tracked')} ${cyan(slug)} ${gray('in')} ${cyan(session)}\n`)
+      console.log(
+        `\n  ${green('↓')} ${bold('Tracked')} ${cyan(slug)} ${gray('in')} ${cyan(session)}\n`
+      )
     } catch (err) {
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)
       process.exit(1)

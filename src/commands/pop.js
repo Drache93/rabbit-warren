@@ -10,7 +10,9 @@ export const popCmd = command(
     try {
       const { name, meta, switched } = await restore(cmd.args.name)
       console.log(`\n  ${green('↑')} ${bold('Restored')} ${cyan(name)}`)
-      console.log(`    ${gray('branch')}    ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`)
+      console.log(
+        `    ${gray('branch')}    ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`
+      )
       console.log(
         `    ${gray('git')}       ${meta.stats.files} tracked, ${meta.stats.untracked ?? 0} untracked`
       )

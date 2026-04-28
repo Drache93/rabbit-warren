@@ -2,7 +2,12 @@ import { command, summary } from 'paparam'
 import { capture } from '../lib/snapshot.js'
 import { deleteStash } from '../lib/storage.js'
 import { bold, cyan, green, gray, yellow, red } from '../lib/color.js'
-import { activeSession, clearActiveSession, readSession, getSessionStashDir } from '../lib/sessions.js'
+import {
+  activeSession,
+  clearActiveSession,
+  readSession,
+  getSessionStashDir
+} from '../lib/sessions.js'
 
 export async function doLeave(name) {
   const session = readSession(name)

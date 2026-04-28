@@ -1,7 +1,12 @@
 import { command, arg, summary } from 'paparam'
 import { restore } from '../lib/snapshot.js'
 import { bold, cyan, green, gray, yellow, red } from '../lib/color.js'
-import { activeSession, setActiveSession, readSession, getSessionStashDir } from '../lib/sessions.js'
+import {
+  activeSession,
+  setActiveSession,
+  readSession,
+  getSessionStashDir
+} from '../lib/sessions.js'
 
 export const enterCmd = command(
   'enter',
@@ -30,7 +35,9 @@ export const enterCmd = command(
         const stashDir = getSessionStashDir(name, repoSlug)
         try {
           const { meta, switched } = await restore(null, repoPath, stashDir)
-          console.log(`    ${cyan(repoSlug)}  ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`)
+          console.log(
+            `    ${cyan(repoSlug)}  ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`
+          )
         } catch (err) {
           console.log(`    ${cyan(repoSlug)}  ${red('!')} ${gray(err.message)}`)
         }
