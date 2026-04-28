@@ -5,6 +5,7 @@ import {
   currentBranch,
   capturePatch,
   applyPatch,
+  inspectPatch,
   countChangedFiles,
   captureUntracked,
   cleanWorkingDirectory,
@@ -149,6 +150,49 @@ export async function restore(stashName) {
   deleteStash(dir)
 
   return { name: meta.name, meta, switched }
+}
+
+export function inspect(stashName) {
+  const repoRoot = getRepoRoot()
+  const slug = makeRepoSlug(repoRoot)
+  const nodeModulesPath = path.join(repoRoot, 'node_modules')
+
+  let dir, meta
+
+  if (stashName) {
+    dir = getStashDir(slug, stashName)
+    if (!fs.existsSync(dir)) {
+      throw new Error(`Stash "${stashName}" not found`)
+    }
+    meta = readMeta(dir)
+  } else {
+    meta = mostRecentStash(slug)
+    if (!meta) throw new Error('No stashes found for this repo')
+    dir = getStashDir(slug, meta.name)
+  }
+
+  const stashed = {
+    branch: meta.branch,
+    changes: [],
+    untracked: [],
+    modules: [],
+    links: []
+  }
+
+  const currentBranchName = currentBranch(repoRoot)
+  const switched = meta.branch !== currentBranchName
+
+  const patch = fs.readFileSync(path.join(dir, 'git.patch'), 'utf8')
+  if (patch.trim()) stashed.changes = inspectPatch(patch)
+
+  const linksPath = path.join(dir, 'node_modules', 'links.json')
+  const links = JSON.parse(fs.readFileSync(linksPath, 'utf8'))
+
+  stashed.links = links
+  stashed.untracked = walkFiles(path.join(dir, 'untracked'), repoRoot)
+  stashed.modules = walkFiles(path.join(dir, 'node_modules', 'modified'), nodeModulesPath)
+
+  return stashed
 }
 
 export async function swap(targetName) {

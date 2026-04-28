@@ -48,6 +48,37 @@ export function applyPatch(patch, repoRoot) {
   }
 }
 
+export function inspectPatch(patch) {
+  const diff = []
+
+  let file = null
+  for (const line of patch.split('\n')) {
+    if (line.startsWith('diff --git')) {
+      if (file) diff.push(file)
+      file = fileDiff(line)
+      continue
+    }
+
+    if (line.startsWith('+++')) continue
+    if (line.startsWith('---')) continue
+
+    if (line.startsWith('+')) file.added++
+    if (line.startsWith('-')) file.removed++
+  }
+
+  diff.push(file)
+
+  return diff
+
+  function fileDiff(line) {
+    return {
+      filename: line.match(/(?<=\sa)[^\s]*/)[0],
+      added: 0,
+      removed: 0
+    }
+  }
+}
+
 export function countChangedFiles(patch) {
   return (patch.match(/^diff --git /gm) || []).length
 }
