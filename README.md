@@ -25,13 +25,18 @@ npm link
 ## Usage
 
 ```sh
-wrn stash [name]    # save context, clean working directory
-wrn pop [name]      # restore most recent (or named) stash
-wrn swap <name>     # bidirectional swap — run again to swap back
-wrn list            # see all stashes for this repo
+wrn stash [name]       # save context, clean working directory
+wrn pop [name]         # restore most recent (or named) stash
+wrn swap <name>        # bidirectional swap — run again to swap back
+wrn list               # see all stashes for this repo
+
+wrn enter <name>       # start or resume a named session (restores all repos)
+wrn leave              # snapshot all session repos and exit
+wrn checkout <branch>  # git checkout, but snapshots into the session first
+wrn link [package]     # npm link, but snapshots into the session after
 ```
 
-### Typical flow
+### Stash flow
 
 ```sh
 # deep in a debug session on feature/auth — changes everywhere
@@ -42,6 +47,35 @@ git checkout main
 
 # pick up exactly where you left off - returns to feature/auth
 wrn pop
+```
+
+### Session flow
+
+Sessions let you name a working context that spans multiple repos. Enter a session, work across repos using the session-aware commands, then leave. Everything is snapshotted together and restored when you come back.
+
+```sh
+# start a cross-repo session
+wrn enter auth-refactor
+
+# work in your API repo — checkout snapshots current state first
+cd ~/dev/api
+wrn checkout feature/auth-v2
+
+# link and snapshot the frontend repo
+cd ~/dev/frontend
+wrn link ../api
+
+# urgent fix needed — snapshot all session repos and step out
+wrn leave
+#   ↓ Leaving session auth-refactor
+#     api    feature/auth-v2
+#     frontend  main
+
+# later, restore everything exactly as you left it
+wrn enter auth-refactor
+#   ↑ Restoring session auth-refactor
+#     api    feature/auth-v2  (switched)
+#     frontend  main
 ```
 
 ---
@@ -56,6 +90,8 @@ wrn pop
 | Hand-edited `node_modules` files | individual files copied (no full copies) |
 
 Stashes live at `~/.rabbit-warren/<repo>/` — outside the repo, safe from git.
+
+Sessions are stored at `~/.rabbit-warren/sessions/<name>/` — one subdirectory per linked repo, plus a `session.json` index.
 
 ---
 
