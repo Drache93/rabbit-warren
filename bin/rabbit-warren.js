@@ -3,10 +3,13 @@ import { command, header, summary } from 'paparam'
 import { stashCmd } from '../src/commands/stash.js'
 import { popCmd } from '../src/commands/pop.js'
 import { swapCmd } from '../src/commands/swap.js'
+import { showCmd } from '../src/commands/show.js'
 import { listCmd } from '../src/commands/list.js'
 import { enterCmd } from '../src/commands/enter.js'
 import { leaveCmd } from '../src/commands/leave.js'
 import { trackCmd } from '../src/commands/track.js'
+import { exportCmd } from '../src/commands/export.js'
+import { importCmd } from '../src/commands/import.js'
 
 const main = command(
   'rabbit-warren',
@@ -15,10 +18,13 @@ const main = command(
   stashCmd,
   popCmd,
   swapCmd,
+  showCmd,
   listCmd,
   enterCmd,
   leaveCmd,
   trackCmd,
+  exportCmd,
+  importCmd,
   () => console.log(main.help())
 )
 
