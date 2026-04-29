@@ -120,7 +120,6 @@ export function getLastInstall(nodeModulesPath, lockfilePath) {
   return minTime
 }
 
-
 export function copyModifiedFiles(relPaths, nodeModulesPath, destDir) {
   for (const { file: relPath } of relPaths) {
     const src = path.join(nodeModulesPath, relPath)
