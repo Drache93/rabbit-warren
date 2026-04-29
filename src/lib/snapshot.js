@@ -189,8 +189,11 @@ export function inspect(stashName) {
   const links = JSON.parse(fs.readFileSync(linksPath, 'utf8'))
 
   stashed.links = links
-  stashed.untracked = walkFiles(path.join(dir, 'untracked'), repoRoot)
+  stashed.untracked = walkFiles(path.join(dir, 'untracked'), repoRoot, { relativeTo: '' })
+    .map(file => path.relative(path.join(dir, 'untracked'), file))
+
   stashed.modules = walkFiles(path.join(dir, 'node_modules', 'modified'), nodeModulesPath)
+    .map(file => path.relative(path.join(dir, 'node_modules', 'modified'), file))
 
   return stashed
 }
