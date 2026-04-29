@@ -2,6 +2,7 @@
 import { command, header, summary } from 'paparam'
 import { stashCmd } from '../src/commands/stash.js'
 import { popCmd } from '../src/commands/pop.js'
+import { dropCmd } from '../src/commands/drop.js'
 import { swapCmd } from '../src/commands/swap.js'
 import { showCmd } from '../src/commands/show.js'
 import { listCmd } from '../src/commands/list.js'
@@ -17,6 +18,7 @@ const main = command(
   summary('Stash and restore full dev context: git changes, node_modules edits, and symlinks'),
   stashCmd,
   popCmd,
+  dropCmd,
   swapCmd,
   showCmd,
   listCmd,
