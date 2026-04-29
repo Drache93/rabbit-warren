@@ -16,7 +16,7 @@ export function activeSession() {
 
 export function setActiveSession(name) {
   fs.mkdirSync(SESSIONS_DIR, { recursive: true })
-  const session = readSession(name)
+  const session = readSession(name) || { name, timestamp: null, repos: {} }
   session.timestamp = Date.now()
   writeSession(session)
   fs.writeFileSync(CURRENT_FILE, name)

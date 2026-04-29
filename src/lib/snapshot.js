@@ -73,6 +73,7 @@ export async function capture(stashName, cwd = process.cwd(), stashDir = null, s
   const untracked = captureUntracked(repoRoot)
   const links = captureLinks(nodeModulesPath)
   const modified = captureModified(nodeModulesPath, lockfilePath)
+  const versions = captureVersions(nodeModulesPath)
 
   const meta = {
     name,
