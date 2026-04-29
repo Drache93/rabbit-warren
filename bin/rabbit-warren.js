@@ -4,6 +4,8 @@ import { stashCmd } from '../src/commands/stash.js'
 import { popCmd } from '../src/commands/pop.js'
 import { swapCmd } from '../src/commands/swap.js'
 import { listCmd } from '../src/commands/list.js'
+import { exportCmd } from '../src/commands/export.js'
+import { importCmd } from '../src/commands/import.js'
 
 const main = command(
   'rabbit-warren',
@@ -13,6 +15,8 @@ const main = command(
   popCmd,
   swapCmd,
   listCmd,
+  exportCmd,
+  importCmd,
   () => console.log(main.help())
 )
 
