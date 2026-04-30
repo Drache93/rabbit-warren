@@ -6,7 +6,7 @@ import { getStashDir, readMeta, makeRepoSlug } from '../lib/storage.js'
 import { inspect } from '../lib/snapshot.js'
 import { bold, cyan, green, yellow, red, gray, dim } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
-import { getSessionsDir, readSession } from '../lib/sessions.js'
+import { activeSession, getSessionsDir, readSession } from '../lib/sessions.js'
 
 export const showCmd = command(
   'show',
@@ -16,6 +16,20 @@ export const showCmd = command(
     initStorageDir(cmd)
     try {
       const name = cmd.args.name
+
+      if (!name) {
+        const session = activeSession()
+        if (session) {
+          console.log(session)
+          return
+        }
+        console.log(`\n  ${gray('No name provided.')}\n`)
+        return
+      }
+
+      if (/[/\\]/.test(name)) throw new Error('Name cannot contain path separators.')
+      if (/[<>:"|?*\x00-\x1f]/.test(name)) throw new Error('Name contains invalid characters.')
+
       const session = readSession(name)
       if (session) {
         console.log(`  ${green('Session: ')}${bold(session.name)}`)
@@ -33,10 +47,6 @@ export const showCmd = command(
 
         return
       }
-
-      if (!name || !name.trim()) throw new Error('Name cannot be empty.')
-      if (/[/\\]/.test(name)) throw new Error('Name cannot contain path separators.')
-      if (/[<>:"|?*\x00-\x1f]/.test(name)) throw new Error('Name contains invalid characters.')
 
       printStashed(name)
     } catch (err) {
