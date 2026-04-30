@@ -26,10 +26,9 @@ export const stashCmd = command(
         }
         if (results.length > 0) console.log()
         console.log(`  ${gray('Run')} wrn enter ${cyan(session)} ${gray('to resume.')}\n`)
-        return
       }
 
-      const { name, meta } = await capture(cmd.args.name)
+      const { name, meta } = capture(cmd.args.name)
       console.log(`\n  ${green('↓')} ${bold('Stashed')} ${cyan(name)}`)
       console.log(`    ${gray('branch')}    ${yellow(meta.branch)}`)
       console.log(
