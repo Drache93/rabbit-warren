@@ -68,7 +68,6 @@ export function restoreLinks(links, nodeModulesPath) {
 export function captureModified(nodeModulesPath) {
   if (!fs.existsSync(nodeModulesPath)) return []
 
-  const lastInstall = getLastInstall(nodeModulesPath)
   const modified = []
 
   const entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true })
@@ -80,40 +79,13 @@ export function captureModified(nodeModulesPath) {
     const files = walkFiles(pkgDir, nodeModulesPath)
     for (const relPath of files) {
       const fullPath = path.join(nodeModulesPath, relPath)
-      try {
-        const stat = fs.statSync(fullPath)
-        if (stat.mtimeMs > lastInstall + 1000) {
-          modified.push({ package: pkgDir, file: relPath })
-        }
-      } catch {}
+      if (!isModified(fullPath)) continue
+
+      modified.push({ package: pkgDir, file: relPath })
     }
   }
 
   return modified
-}
-
-export function getLastInstall(nodeModulesPath) {
-  if (!fs.existsSync(nodeModulesPath)) return []
-
-  let minTime = Infinity
-  let count = 0
-
-  const entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true })
-  for (const entry of entries) {
-    if (entry.isSymbolicLink()) continue
-    if (!entry.isDirectory()) continue
-
-    const pkgDir = path.join(nodeModulesPath, entry.name)
-    const stat = fs.statSync(pkgDir)
-    if (stat.mtimeMs < minTime) {
-      minTime = stat.mtimeMs
-      count = 0
-    } else if (++count === 10) {
-      return minTime // probably the install time
-    }
-  }
-
-  return minTime
 }
 
 export function copyModifiedFiles(relPaths, nodeModulesPath, destDir) {
@@ -133,5 +105,14 @@ export function restoreModifiedFiles(srcDir, nodeModulesPath) {
     const dest = path.join(nodeModulesPath, relPath)
     fs.mkdirSync(path.dirname(dest), { recursive: true })
     fs.copyFileSync(src, dest)
+  }
+}
+
+function isModified(path) {
+  try {
+    const stat = fs.statSync(path)
+    return stat.ctimeMs > stat.birthtimeMs + 2000 // grace period for fs write
+  } catch (err) {
+    return false
   }
 }
