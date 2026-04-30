@@ -13,19 +13,9 @@ export const stashCmd = command(
     initStorageDir(cmd)
     try {
       const session = activeSession()
-
       if (session) {
-        console.log(`\n  ${green('↓')} ${bold('Leaving session')} ${cyan(session)}\n`)
-        const results = await doLeave(session)
-        for (const { repoSlug, meta, error } of results) {
-          if (error) {
-            console.log(`    ${cyan(repoSlug)}  ${red('!')} ${gray(error.message)}`)
-          } else {
-            console.log(`    ${cyan(repoSlug)}  ${yellow(meta.branch)}`)
-          }
-        }
-        if (results.length > 0) console.log()
-        console.log(`  ${gray('Run')} wrn enter ${cyan(session)} ${gray('to resume.')}\n`)
+        console.log(`\n  ${gray("Can't stash you have an active session:")} ${red(session)}\n`)
+        return
       }
 
       const { name, meta } = capture(cmd.args.name)
