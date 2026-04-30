@@ -78,7 +78,7 @@ export function capture(
   const patch = capturePatch(repoRoot)
   const untracked = captureUntracked(repoRoot)
   const links = captureLinks(nodeModulesPath)
-  const modified = captureModified(nodeModulesPath, lockfilePath)
+  const modified = captureModified(nodeModulesPath)
   const versions = captureVersions(nodeModulesPath)
 
   const meta = {

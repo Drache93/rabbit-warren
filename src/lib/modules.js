@@ -65,10 +65,10 @@ export function restoreLinks(links, nodeModulesPath) {
   }
 }
 
-export function captureModified(nodeModulesPath, lockfilePath) {
+export function captureModified(nodeModulesPath) {
   if (!fs.existsSync(nodeModulesPath)) return []
 
-  const lastInstall = getLastInstall(nodeModulesPath, lockfilePath)
+  const lastInstall = getLastInstall(nodeModulesPath)
   const modified = []
 
   const entries = fs.readdirSync(nodeModulesPath, { withFileTypes: true })
@@ -92,11 +92,8 @@ export function captureModified(nodeModulesPath, lockfilePath) {
   return modified
 }
 
-export function getLastInstall(nodeModulesPath, lockfilePath) {
+export function getLastInstall(nodeModulesPath) {
   if (!fs.existsSync(nodeModulesPath)) return []
-  if (lockfilePath && fs.existsSync(lockfilePath)) {
-    return fs.statSync(lockfilePath).mtimeMs
-  }
 
   let minTime = Infinity
   let count = 0
