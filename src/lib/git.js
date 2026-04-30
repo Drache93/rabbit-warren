@@ -29,7 +29,9 @@ export function cleanWorkingDirectory(repoRoot, links, modified) {
   if (!repoRoot) throw new Error('No root directory specified')
   execSync('git reset --hard HEAD', { cwd: repoRoot, encoding: 'utf8' })
   execSync('git clean -fd', { cwd: repoRoot, encoding: 'utf8' })
-  if (modified.length) execSync('rm -rf ./node_modules', { cwd: repoRoot, encoding: 'utf8' })
+  if (!modified.length) return
+  execSync('rm -rf ./node_modules', { cwd: repoRoot, encoding: 'utf8' })
+  execSync('npm i', { cwd: repoRoot, encoding: 'utf8' })
 }
 
 export function applyPatch(patch, repoRoot) {
