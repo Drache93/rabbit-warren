@@ -169,13 +169,16 @@ export function restore(stashName, cwd = process.cwd(), stashDir = null) {
   return { name: meta.name, meta, switched }
 }
 
-export function inspect(stashName) {
-  const repoRoot = getRepoRoot()
+export function inspect(stashName, root, stashDir) {
+  const repoRoot = getRepoRoot(root)
   const slug = makeRepoSlug(repoRoot)
 
   let dir, meta
 
-  if (stashName) {
+  if (stashDir) {
+    dir = stashDir
+    meta = readMeta(dir)
+  } else if (stashName) {
     dir = getStashDir(slug, stashName)
     if (!fs.existsSync(dir)) {
       throw new Error(`Stash "${stashName}" not found`)

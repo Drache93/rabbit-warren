@@ -2,7 +2,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import os from 'node:os'
 
-function getSessionsDir() {
+export function getSessionsDir() {
   return path.join(process.env.WRN_HOME || path.join(os.homedir(), '.rabbit-warren'), 'sessions')
 }
 
