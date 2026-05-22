@@ -31,7 +31,7 @@ function isDirty() {
   return execSync('git status --porcelain', { cwd: repoDir, encoding: 'utf8' }).trim() !== ''
 }
 
-test('capture with clean:true cleans working directory', async (t) => {
+test('capture with clean:true cleans working directory', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -44,7 +44,7 @@ test('capture with clean:true cleans working directory', async (t) => {
   t.is(isDirty(), false, 'working dir should be clean after capture with clean:true')
 })
 
-test('capture with clean:false leaves working directory dirty', async (t) => {
+test('capture with clean:false leaves working directory dirty', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -58,7 +58,7 @@ test('capture with clean:false leaves working directory dirty', async (t) => {
   fs.rmSync(dir, { recursive: true, force: true })
 })
 
-test('capture writes meta.json with correct fields', async (t) => {
+test('capture writes meta.json with correct fields', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -66,7 +66,7 @@ test('capture writes meta.json with correct fields', async (t) => {
 
   fs.writeFileSync(path.join(repoDir, 'README.md'), 'meta test')
   const dir = stashDir('test-meta')
-  const { meta } = await capture('test-meta', repoDir, dir, 'my-session', { clean: true })
+  const { meta } = capture('test-meta', repoDir, dir, 'my-session', { clean: true })
   t.is(meta.name, 'test-meta')
   t.is(meta.repoPath, repoDir)
   t.is(meta.session, 'my-session')
@@ -74,7 +74,7 @@ test('capture writes meta.json with correct fields', async (t) => {
   t.ok(typeof meta.timestamp === 'number')
 })
 
-test('capture throws if stash dir already exists', async (t) => {
+test('capture throws if stash dir already exists', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -86,7 +86,7 @@ test('capture throws if stash dir already exists', async (t) => {
   fs.rmSync(dir, { recursive: true, force: true })
 })
 
-test('restore applies patch and restores file content', async (t) => {
+test('restore applies patch and restores file content', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -100,7 +100,7 @@ test('restore applies patch and restores file content', async (t) => {
   t.is(fs.readFileSync(path.join(repoDir, 'README.md'), 'utf8'), 'restored content')
 })
 
-test('restore deletes stash dir after success', async (t) => {
+test('restore deletes stash dir after success', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })
@@ -113,7 +113,7 @@ test('restore deletes stash dir after success', async (t) => {
   t.is(fs.existsSync(dir), false, 'stash dir should be deleted after restore')
 })
 
-test('restore throws if working directory is dirty', async (t) => {
+test('restore throws if working directory is dirty', (t) => {
   t.teardown(() => {
     execSync('git reset --hard HEAD', { cwd: repoDir })
     execSync('git clean -fd', { cwd: repoDir })

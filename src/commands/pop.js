@@ -15,7 +15,7 @@ export const popCmd = command(
   'pop',
   summary('Restore a session and remove it (defaults to current session)'),
   arg('[name]', 'Session name (default: current session)'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const name = cmd.args.name || activeSession()

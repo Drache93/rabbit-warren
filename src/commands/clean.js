@@ -10,7 +10,7 @@ import { capture } from '../lib/snapshot.js'
 export const cleanCmd = command(
   'clean',
   summary('Reset working directory, discarding all changes'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const repoRoot = getRepoRoot()

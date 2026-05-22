@@ -8,7 +8,7 @@ export const importCmd = command(
   'import',
   summary('Import a session from a .wrn.tar.gz file and apply it'),
   arg('<file>', 'Path to the .wrn.tar.gz file'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const session = importSession(cmd.args.file)

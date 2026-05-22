@@ -23,12 +23,7 @@ import {
   walkFiles
 } from './modules.js'
 import { makeRepoSlug, readMeta, deleteStash } from './storage.js'
-import {
-  getSessionsDir,
-  getSessionStashDir,
-  readSession,
-  mostRecentSession
-} from './sessions.js'
+import { getSessionsDir, getSessionStashDir, readSession, mostRecentSession } from './sessions.js'
 import { captureVersions } from './lockfile.js'
 
 function findLockfile(repoRoot) {
@@ -226,10 +221,7 @@ export function inspect(stashDir) {
   stashed.links = JSON.parse(
     fs.readFileSync(path.join(stashDir, 'node_modules', 'links.json'), 'utf8')
   )
-  stashed.untracked = walkFiles(
-    path.join(stashDir, 'untracked'),
-    path.join(stashDir, 'untracked')
-  )
+  stashed.untracked = walkFiles(path.join(stashDir, 'untracked'), path.join(stashDir, 'untracked'))
   stashed.modules = walkFiles(
     path.join(stashDir, 'node_modules', 'modified'),
     path.join(stashDir, 'node_modules', 'modified')

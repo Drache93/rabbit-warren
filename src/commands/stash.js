@@ -16,7 +16,7 @@ export const stashCmd = command(
   summary('Save current dev context to a named session (default: "default")'),
   arg('[name]', 'Session name (default: "default")'),
   flag('--deep', 'Also capture modified files in transitively linked deps'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const name = cmd.args.name || activeSession() || 'default'

@@ -38,7 +38,9 @@ export const untrackCmd = command(
       if (repoRoot) {
         const slug = makeRepoSlug(repoRoot)
         if (!sessionData?.repos[slug]) {
-          console.log(`\n  ${gray('Repo')} ${bold(slug)} ${gray('is not tracked in session')} ${cyan(session)}.\n`)
+          console.log(
+            `\n  ${gray('Repo')} ${bold(slug)} ${gray('is not tracked in session')} ${cyan(session)}.\n`
+          )
           return
         }
         deleteStash(getSessionStashDir(session, slug))
@@ -47,7 +49,9 @@ export const untrackCmd = command(
       } else {
         const matched = sessionData?.extras?.find((e) => e.originalPath === targetPath)
         if (!matched) {
-          console.log(`\n  ${gray('Path')} ${bold(targetPath)} ${gray('is not tracked in session')} ${cyan(session)}.\n`)
+          console.log(
+            `\n  ${gray('Path')} ${bold(targetPath)} ${gray('is not tracked in session')} ${cyan(session)}.\n`
+          )
           return
         }
         removeExtra(session, targetPath)

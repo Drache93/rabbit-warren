@@ -9,13 +9,8 @@ process.env.WRN_HOME = tmpHome
 
 const { capture, restore, exportSession, importSession } = await import('../src/lib/snapshot.js')
 const { makeRepoSlug } = await import('../src/lib/storage.js')
-const {
-  readSession,
-  writeSession,
-  getSessionStashDir,
-  registerRepo,
-  getSessionsDir
-} = await import('../src/lib/sessions.js')
+const { readSession, writeSession, getSessionStashDir, registerRepo, getSessionsDir } =
+  await import('../src/lib/sessions.js')
 
 let repoDir
 

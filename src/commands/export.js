@@ -2,12 +2,7 @@ import { command, arg, flag, summary } from 'paparam'
 import { exportSession, capture } from '../lib/snapshot.js'
 import { bold, cyan, gray, green } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
-import {
-  activeSession,
-  readSession,
-  getSessionStashDir,
-  deleteSession
-} from '../lib/sessions.js'
+import { activeSession, readSession, getSessionStashDir, deleteSession } from '../lib/sessions.js'
 import { makeRepoSlug, deleteStash } from '../lib/storage.js'
 import { getRepoRoot } from '../lib/git.js'
 
@@ -17,7 +12,7 @@ export const exportCmd = command(
   arg('[name]', 'Session to export (default: most recent)'),
   arg('[output]', 'Output path (default: ./<name>.wrn.tar.gz)'),
   flag('--current', 'Snapshot current state, export, then clean up (non-destructive)'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       if (cmd.flags.current) {
@@ -43,7 +38,9 @@ export const exportCmd = command(
         const { outputPath } = exportSession(name, cmd.args.output)
         deleteSession(name)
 
-        console.log(`\n  ${green('↗')} ${bold('Exported')} ${cyan(name)} ${gray('(snapshot not kept)')}`)
+        console.log(
+          `\n  ${green('↗')} ${bold('Exported')} ${cyan(name)} ${gray('(snapshot not kept)')}`
+        )
         console.log(`    ${gray('file')}  ${outputPath}\n`)
         return
       }

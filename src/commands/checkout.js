@@ -23,7 +23,7 @@ export const checkoutCmd = command(
   summary('Apply changes for a specific file or folder from a session snapshot'),
   arg('<session>', 'Session name'),
   arg('<path>', 'File or folder path relative to repo root'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const sessionName = cmd.args.session

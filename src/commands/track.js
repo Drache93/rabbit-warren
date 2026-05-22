@@ -17,7 +17,7 @@ export const trackCmd = command(
   'track',
   summary('Add a repo, file, or folder to the current session'),
   arg('[path]', 'Path to track (default: current directory)'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const session = activeSession()

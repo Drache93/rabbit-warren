@@ -14,7 +14,7 @@ export const applyCmd = command(
   'apply',
   summary('Restore a session without removing it (defaults to current session)'),
   arg('[name]', 'Session name (default: current session)'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const name = cmd.args.name || activeSession()

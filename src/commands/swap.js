@@ -14,7 +14,7 @@ export const swapCmd = command(
   'swap',
   summary('Save current session and switch to another'),
   arg('<name>', 'Session to swap to'),
-  async (cmd) => {
+  (cmd) => {
     initStorageDir(cmd)
     try {
       const current = activeSession()
@@ -32,7 +32,9 @@ export const swapCmd = command(
 
       const currentSession = readSession(current)
 
-      console.log(`\n  ${green('⇄')} ${bold('Swapping')} ${cyan(current)} ${gray('→')} ${cyan(target)}\n`)
+      console.log(
+        `\n  ${green('⇄')} ${bold('Swapping')} ${cyan(current)} ${gray('→')} ${cyan(target)}\n`
+      )
 
       // Re-capture all repos in current session (update snapshots, clean working dirs)
       if (currentSession) {

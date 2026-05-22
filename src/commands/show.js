@@ -2,11 +2,7 @@ import { command, arg, flag, summary } from 'paparam'
 import { inspect } from '../lib/snapshot.js'
 import { bold, cyan, green, yellow, red, gray, dim } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
-import {
-  mostRecentSession,
-  readSession,
-  getSessionStashDir
-} from '../lib/sessions.js'
+import { mostRecentSession, readSession, getSessionStashDir } from '../lib/sessions.js'
 
 export const showCmd = command(
   'show',
@@ -64,7 +60,9 @@ export const showCmd = command(
         return
       }
 
-      console.log(`\n  ${green('Session')} ${bold(cyan(name))}  ${gray(new Date(session.timestamp).toLocaleString())}\n`)
+      console.log(
+        `\n  ${green('Session')} ${bold(cyan(name))}  ${gray(new Date(session.timestamp).toLocaleString())}\n`
+      )
 
       for (const { repoSlug, meta, stashed } of repoDetails) {
         if (!meta || !stashed) {

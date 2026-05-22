@@ -117,7 +117,10 @@ export function captureExtra(sessionName, absPath) {
   const extraDir = path.join(getExtrasDir(sessionName), hash)
   fs.rmSync(extraDir, { recursive: true, force: true })
   fs.mkdirSync(extraDir, { recursive: true })
-  fs.writeFileSync(path.join(extraDir, 'meta.json'), JSON.stringify({ originalPath: absPath, isDir }))
+  fs.writeFileSync(
+    path.join(extraDir, 'meta.json'),
+    JSON.stringify({ originalPath: absPath, isDir })
+  )
   if (isDir) {
     fs.cpSync(absPath, path.join(extraDir, 'data'), { recursive: true })
   } else {
