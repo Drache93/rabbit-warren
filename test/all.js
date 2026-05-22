@@ -10,6 +10,7 @@ async function runTests () {
   await import('./flow.js')
   await import('./sessions.js')
   await import('./snapshot.js')
+  await import('./export-import.js')
 
   test.resume()
 }
