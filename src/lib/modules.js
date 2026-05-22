@@ -2,9 +2,10 @@ import fs from 'node:fs'
 import path from 'node:path'
 
 const SKIP_DIRS = new Set(['.git', '.cache', 'node_modules'])
+const SKIP_PKG_DIRS = new Set([...SKIP_DIRS, 'bin'])
 const SKIP_EXTS = new Set(['.node'])
 
-export function walkFiles(dir, base) {
+export function walkFiles(dir, base, skipDirs = SKIP_DIRS) {
   const results = []
   let entries
   try {
@@ -16,8 +17,8 @@ export function walkFiles(dir, base) {
     if (entry.isSymbolicLink()) continue
     const full = path.join(dir, entry.name)
     if (entry.isDirectory()) {
-      if (SKIP_DIRS.has(entry.name)) continue
-      results.push(...walkFiles(full, base))
+      if (skipDirs.has(entry.name)) continue
+      results.push(...walkFiles(full, base, skipDirs))
     } else if (entry.isFile()) {
       if (SKIP_EXTS.has(path.extname(entry.name))) continue
       results.push(path.relative(base, full))
@@ -76,7 +77,7 @@ export function captureModified(nodeModulesPath) {
     if (!entry.isDirectory()) continue
 
     const pkgDir = path.join(nodeModulesPath, entry.name)
-    const files = walkFiles(pkgDir, nodeModulesPath)
+    const files = walkFiles(pkgDir, nodeModulesPath, SKIP_PKG_DIRS)
     for (const relPath of files) {
       const fullPath = path.join(nodeModulesPath, relPath)
       if (!isModified(fullPath)) continue

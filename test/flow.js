@@ -28,7 +28,7 @@ function isClean() {
   return execSync('git status --porcelain', { cwd: repoDir, encoding: 'utf8' }).trim() === ''
 }
 
-test('enter -> track -> leave -> enter cycle preserves changes', async (t) => {
+test('stash -> track -> pop cycle preserves changes', async (t) => {
   const slug = makeRepoSlug(repoDir)
   const sessionName = 'test-session'
   const stashDir = getSessionStashDir(sessionName, slug)

@@ -8,7 +8,8 @@ const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'wrn-test-snapshot-'))
 process.env.WRN_HOME = tmpHome
 
 const { capture, restore } = await import('../src/lib/snapshot.js')
-const { makeRepoSlug, getStashDir } = await import('../src/lib/storage.js')
+const { makeRepoSlug } = await import('../src/lib/storage.js')
+const { getSessionStashDir } = await import('../src/lib/sessions.js')
 
 let repoDir
 
@@ -23,7 +24,7 @@ hook(() => {
 })
 
 function stashDir(name) {
-  return getStashDir(makeRepoSlug(repoDir), name)
+  return getSessionStashDir('test-session', makeRepoSlug(repoDir) + '-' + name)
 }
 
 function isDirty() {

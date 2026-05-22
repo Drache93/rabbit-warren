@@ -1,26 +1,34 @@
 import { command, arg, summary } from 'paparam'
-import { importAndRestore } from '../lib/snapshot.js'
-import { bold, cyan, yellow, gray, green } from '../lib/color.js'
+import { importSession, restore } from '../lib/snapshot.js'
+import { bold, cyan, yellow, gray, green, red } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
+import { getSessionStashDir } from '../lib/sessions.js'
 
 export const importCmd = command(
   'import',
-  summary('Import and apply a stash from a .wrn.tar.gz file'),
+  summary('Import a session from a .wrn.tar.gz file and apply it'),
   arg('<file>', 'Path to the .wrn.tar.gz file'),
   async (cmd) => {
     initStorageDir(cmd)
     try {
-      const { name, meta, switched } = await importAndRestore(cmd.args.file)
-      console.log(`\n  ${green('↙')} ${bold('Imported')} ${cyan(name)}`)
-      console.log(
-        `    ${gray('branch')}    ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`
-      )
-      console.log(
-        `    ${gray('git')}       ${meta.stats.files} tracked, ${meta.stats.untracked ?? 0} untracked`
-      )
-      console.log(
-        `    ${gray('modules')}   ${meta.stats.links} symlinks, ${meta.stats.modified} modified files\n`
-      )
+      const session = importSession(cmd.args.file)
+      if (!session) throw new Error('Invalid session archive')
+
+      console.log(`\n  ${green('↙')} ${bold('Imported session')} ${cyan(session.name)}\n`)
+
+      for (const { repoSlug, repoPath } of Object.values(session.repos)) {
+        const stashDir = getSessionStashDir(session.name, repoSlug)
+        try {
+          const { meta, switched } = restore(null, repoPath, stashDir)
+          console.log(
+            `    ${cyan(repoSlug)}  ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`
+          )
+        } catch (err) {
+          console.log(`    ${cyan(repoSlug)}  ${red('!')} ${gray(err.message)}`)
+        }
+      }
+
+      console.log()
     } catch (err) {
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)
       process.exit(1)

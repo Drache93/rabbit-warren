@@ -1,51 +1,56 @@
-import fs from 'node:fs'
+import path from 'node:path'
 import { command, arg, summary } from 'paparam'
 import { capture } from '../lib/snapshot.js'
 import { makeRepoSlug, deleteStash } from '../lib/storage.js'
 import { getRepoRoot } from '../lib/git.js'
-import { bold, cyan, green, gray, yellow } from '../lib/color.js'
-import { activeSession, registerRepo, getSessionStashDir } from '../lib/sessions.js'
+import { bold, cyan, green, gray, dim } from '../lib/color.js'
+import {
+  activeSession,
+  registerRepo,
+  getSessionStashDir,
+  addExtra,
+  captureExtra
+} from '../lib/sessions.js'
 import { initStorageDir } from '../lib/config.js'
 
 export const trackCmd = command(
   'track',
-  summary('Track the curent repo in the active session'),
-  arg('[path]'),
+  summary('Add a repo, file, or folder to the current session'),
+  arg('[path]', 'Path to track (default: current directory)'),
   async (cmd) => {
     initStorageDir(cmd)
     try {
       const session = activeSession()
-
       if (!session) {
         console.log(`\n  ${gray('No active session.')}\n`)
         return
       }
 
-      let repoRoot
+      const targetPath = path.resolve(cmd.args.path || process.cwd())
+
+      let repoRoot = null
       try {
-        repoRoot = getRepoRoot(cmd.args.path)
+        repoRoot = getRepoRoot(targetPath)
       } catch {
-        throw new Error(
-          'Not inside a git repository. `wrn track` must be run from within a git repo.'
-        )
+        // not a git repo — track as extra file/folder
       }
 
-      const slug = makeRepoSlug(repoRoot)
-      const stashDir = getSessionStashDir(session, slug)
-
-      if (fs.existsSync(stashDir)) {
+      if (repoRoot) {
+        const slug = makeRepoSlug(repoRoot)
+        const stashDir = getSessionStashDir(session, slug)
+        deleteStash(stashDir)
+        capture(slug, repoRoot, stashDir, session, { clean: false })
+        registerRepo(session, slug, repoRoot)
         console.log(
-          `  ${gray('Re-tracking')} ${cyan(slug)} ${gray('— replacing previous snapshot.')}`
+          `\n  ${green('+')} ${bold('Tracking repo')} ${cyan(slug)} ${gray('in')} ${cyan(session)}\n`
+        )
+      } else {
+        addExtra(session, targetPath)
+        captureExtra(session, targetPath)
+        console.log(
+          `\n  ${green('+')} ${bold('Tracking')} ${dim(path.relative(process.cwd(), targetPath) || targetPath)} ${gray('in')} ${cyan(session)}\n`
         )
       }
-
-      deleteStash(stashDir)
-      capture(slug, process.cwd(), stashDir, session, { clean: false })
-      registerRepo(session, slug, repoRoot)
-
-      console.log(
-        `\n  ${green('↓')} ${bold('Tracked')} ${cyan(slug)} ${gray('in')} ${cyan(session)}\n`
-      )
     } catch (err) {
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)
       process.exit(1)

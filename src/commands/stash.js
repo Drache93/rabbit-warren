@@ -1,24 +1,37 @@
-import { command, arg, summary } from 'paparam'
+import { command, arg, flag, summary } from 'paparam'
 import { capture } from '../lib/snapshot.js'
-import { bold, cyan, yellow, gray, green, red } from '../lib/color.js'
-import { activeSession } from '../lib/sessions.js'
-import { doLeave } from './leave.js'
+import { bold, cyan, yellow, gray, green } from '../lib/color.js'
+import {
+  activeSession,
+  setActiveSession,
+  getSessionStashDir,
+  registerRepo
+} from '../lib/sessions.js'
+import { makeRepoSlug, deleteStash } from '../lib/storage.js'
+import { getRepoRoot } from '../lib/git.js'
 import { initStorageDir } from '../lib/config.js'
 
 export const stashCmd = command(
   'stash',
-  summary('Save current dev context and clean the working directory'),
-  arg('[name]', 'Name for this stash (default: branch-timestamp)'),
+  summary('Save current dev context to a named session (default: "default")'),
+  arg('[name]', 'Session name (default: "default")'),
+  flag('--deep', 'Also capture modified files in transitively linked deps'),
   async (cmd) => {
     initStorageDir(cmd)
     try {
-      const session = activeSession()
-      if (session) {
-        console.log(`\n  ${gray("Can't stash you have an active session:")} ${red(session)}\n`)
-        return
-      }
+      const name = cmd.args.name || activeSession() || 'default'
+      const repoRoot = getRepoRoot()
+      const slug = makeRepoSlug(repoRoot)
+      const stashDir = getSessionStashDir(name, slug)
 
-      const { name, meta } = capture(cmd.args.name)
+      deleteStash(stashDir)
+      const { meta } = capture(slug, repoRoot, stashDir, name, {
+        clean: true,
+        deep: !!cmd.flags.deep
+      })
+      registerRepo(name, slug, repoRoot)
+      setActiveSession(name)
+
       console.log(`\n  ${green('↓')} ${bold('Stashed')} ${cyan(name)}`)
       console.log(`    ${gray('branch')}    ${yellow(meta.branch)}`)
       console.log(
@@ -27,6 +40,9 @@ export const stashCmd = command(
       console.log(
         `    ${gray('modules')}   ${meta.stats.links} symlinks, ${meta.stats.modified} modified files`
       )
+      if (meta.stats.deepDeps) {
+        console.log(`    ${gray('deep')}      ${meta.stats.deepDeps} transitive deps`)
+      }
       console.log(`\n  ${gray('Working directory is now clean.')}\n`)
     } catch (err) {
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)

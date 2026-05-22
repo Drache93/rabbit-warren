@@ -1,43 +1,38 @@
 import { command, arg, summary } from 'paparam'
-import { getRepoRoot } from '../lib/git.js'
-import {
-  makeRepoSlug,
-  getStashDir,
-  listStashes,
-  mostRecentStash,
-  deleteStash
-} from '../lib/storage.js'
-import { bold, gray, red, dim } from '../lib/color.js'
+import { bold, gray, red } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
+import {
+  activeSession,
+  clearActiveSession,
+  readSession,
+  deleteSession,
+  mostRecentSession
+} from '../lib/sessions.js'
 
 export const dropCmd = command(
   'drop',
-  summary('Drop a stash (most recent if no name given)'),
-  arg('[name]', 'Name of the stash to restore'),
+  summary('Delete a session without restoring (defaults to current session)'),
+  arg('[name]', 'Session name (default: current session)'),
   (cmd) => {
     initStorageDir(cmd)
     try {
-      const repoRoot = getRepoRoot()
-      const slug = makeRepoSlug(repoRoot)
-      const stashes = listStashes(slug)
+      const name = cmd.args.name || activeSession() || mostRecentSession()?.name
 
-      if (stashes.length === 0) {
-        console.log(`\n  ${gray('No stashes found for this repo.')}\n`)
+      if (!name) {
+        console.log(`\n  ${gray('No sessions found.')}\n`)
         return
       }
 
-      const name = cmd.args.name || mostRecentStash(slug).name
-
-      if (cmd.args.name && stashes.findIndex((s) => s.name === name) === -1) {
-        console.log(`\n  ${gray('Stash')} ${bold(dim(name))} ${gray('not found.')}\n`)
+      if (!readSession(name)) {
+        console.log(`\n  ${gray('Session')} ${bold(name)} ${gray('not found.')}\n`)
         return
       }
 
-      deleteStash(getStashDir(slug, name))
+      if (activeSession() === name) clearActiveSession()
+      deleteSession(name)
 
-      console.log(`\n  ${red('x')} ${bold('Deleted')} ${gray(name)}\n`)
+      console.log(`\n  ${red('x')} ${bold('Dropped session')} ${gray(name)}\n`)
     } catch (err) {
-      console.log(err)
       console.error(`\n  ${bold('\x1b[31mError:\x1b[0m')} ${err.message}\n`)
       process.exit(1)
     }

@@ -4,16 +4,15 @@ import { bold, cyan, yellow, gray, green, red } from '../lib/color.js'
 import { initStorageDir } from '../lib/config.js'
 import {
   activeSession,
-  clearActiveSession,
+  setActiveSession,
   readSession,
   getSessionStashDir,
-  deleteSession,
   restoreExtras
 } from '../lib/sessions.js'
 
-export const popCmd = command(
-  'pop',
-  summary('Restore a session and remove it (defaults to current session)'),
+export const applyCmd = command(
+  'apply',
+  summary('Restore a session without removing it (defaults to current session)'),
   arg('[name]', 'Session name (default: current session)'),
   async (cmd) => {
     initStorageDir(cmd)
@@ -30,13 +29,12 @@ export const popCmd = command(
         return
       }
 
-      console.log(`\n  ${green('↑')} ${bold('Restoring session')} ${cyan(name)}\n`)
+      console.log(`\n  ${green('↑')} ${bold('Applying session')} ${cyan(name)}\n`)
 
-      const repos = Object.values(session.repos)
-      for (const { repoSlug, repoPath } of repos) {
+      for (const { repoSlug, repoPath } of Object.values(session.repos)) {
         const stashDir = getSessionStashDir(name, repoSlug)
         try {
-          const { meta, switched } = restore(null, repoPath, stashDir)
+          const { meta, switched } = restore(null, repoPath, stashDir, { keep: true })
           console.log(
             `    ${cyan(repoSlug)}  ${yellow(meta.branch)}${switched ? gray(' (switched)') : ''}`
           )
@@ -45,10 +43,8 @@ export const popCmd = command(
         }
       }
 
-      restoreExtras(name)
-
-      clearActiveSession()
-      deleteSession(name)
+      restoreExtras(name, { keep: true })
+      setActiveSession(name)
 
       console.log()
     } catch (err) {
