@@ -25,57 +25,83 @@ npm link
 ## Usage
 
 ```sh
-wrn stash [name]       # save context, clean working directory
-wrn pop [name]         # restore most recent (or named) stash
-wrn swap <name>        # bidirectional swap — run again to swap back
-wrn list               # see all stashes for this repo
+# Core
+wrn stash [name]       # save context and clean working directory
+wrn pop [name]         # restore and delete session
+wrn apply [name]       # restore without deleting
+wrn swap <name>        # save current session, switch to another
 
-wrn enter <name>       # start or resume a named session (restores all repos)
-wrn leave              # snapshot all session repos and exit
-wrn checkout <branch>  # git checkout, but snapshots into the session first
-wrn link [package]     # npm link, but snapshots into the session after
+# Inspect
+wrn list               # list all sessions
+wrn show [name]        # inspect a session's contents
+wrn status             # show current session and tracked repos
+wrn session            # print current session name
+wrn diff [path]        # compare stashed files with current state
+
+# Manage
+wrn drop [name]        # delete session without restoring
+wrn clean              # reset working directory, no save
+wrn track [path]       # add a repo, file, or folder to current session
+wrn untrack <path>     # remove from current session
+wrn checkout <session> <path>  # apply a specific file from a session
+
+# Share
+wrn export [name]      # export session to .wrn.tar.gz
+wrn import <file>      # import and apply session from archive
 ```
 
 ### Stash flow
 
 ```sh
 # deep in a debug session on feature/auth — changes everywhere
-wrn stash && npm i
+wrn stash
 
 # working directory is now clean — switch branches safely
 git checkout main
 
-# pick up exactly where you left off - returns to feature/auth
+# pick up exactly where you left off, returns to feature/auth
 wrn pop
 ```
 
+> `npm install` is not needed after stash — it runs automatically if `node_modules` were modified.
+
 ### Session flow
 
-Sessions let you name a working context that spans multiple repos. Enter a session, work across repos using the session-aware commands, then leave. Everything is snapshotted together and restored when you come back.
+Every stash belongs to a named session. Multiple repos can live in the same session. Stashing always targets the active session (or `default` if none is set).
 
 ```sh
-# start a cross-repo session
-wrn enter auth-refactor
+# name your session when you stash
+wrn stash auth-refactor
 
-# work in your API repo — checkout snapshots current state first
-cd ~/dev/api
-wrn checkout feature/auth-v2
-
-# link and snapshot the frontend repo
+# add another repo to the same session (no clean, just snapshot)
 cd ~/dev/frontend
-wrn link ../api
+wrn track
 
-# urgent fix needed — snapshot all session repos and step out
-wrn leave
-#   ↓ Leaving session auth-refactor
-#     api    feature/auth-v2
-#     frontend  main
+# urgent fix needed — update snapshot for this repo and step away
+wrn stash
 
-# later, restore everything exactly as you left it
-wrn enter auth-refactor
-#   ↑ Restoring session auth-refactor
-#     api    feature/auth-v2  (switched)
-#     frontend  main
+# later, restore all repos in the session
+wrn pop auth-refactor
+```
+
+Use `swap` to juggle two sessions without losing either:
+
+```sh
+wrn swap hotfix        # saves auth-refactor, restores hotfix
+wrn swap auth-refactor # saves hotfix, restores auth-refactor
+```
+
+### Sharing sessions
+
+```sh
+# export a stored session
+wrn export auth-refactor           # → auth-refactor.wrn.tar.gz
+
+# snapshot current state, export, and discard the snapshot
+wrn export --current
+
+# import and apply on another machine
+wrn import auth-refactor.wrn.tar.gz
 ```
 
 ---
@@ -89,15 +115,14 @@ wrn enter auth-refactor
 | Symlinked packages               | symlink targets saved as JSON            |
 | Hand-edited `node_modules` files | individual files copied (no full copies) |
 
-Stashes live at `~/.rabbit-warren/<repo>/` — outside the repo, safe from git.
-
-Sessions are stored at `~/.rabbit-warren/sessions/<name>/` — one subdirectory per linked repo, plus a `session.json` index.
+Sessions live at `~/.rabbit-warren/sessions/<name>/` — outside the repo, safe from git. One subdirectory per tracked repo plus a `session.json` index.
 
 ---
 
 ## Notes
 
 - `stash` always leaves the working directory clean (`git status` shows nothing)
-- `swap` is fully reversible — run `rabbit-warren swap <name>` again to undo
+- `npm install` runs automatically after stash when `node_modules` were modified
 - Modified `node_modules` detection uses file mtimes relative to your lockfile
-- Gitignored files (including `node_modules` itself) stay put after stash
+- Gitignored files (including `node_modules` itself) stay put unless modified
+- `stash --deep` also captures modified files in transitively linked dependencies
