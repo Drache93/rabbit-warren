@@ -15,6 +15,7 @@ import { sessionCmd } from '../src/commands/session.js'
 import { statusCmd } from '../src/commands/status.js'
 import { exportCmd } from '../src/commands/export.js'
 import { importCmd } from '../src/commands/import.js'
+import { diffCmd } from '../src/commands/diff.js'
 
 const main = command(
   'rabbit-warren',
@@ -32,6 +33,7 @@ const main = command(
   untrackCmd,
   showCmd,
   listCmd,
+  diffCmd,
   sessionCmd,
   statusCmd,
   exportCmd,
